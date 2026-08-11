@@ -1,6 +1,6 @@
 ---
 name: qc-checklist
-description: Generates a human-focused QC checklist from an OpenSpec change for diff-based review of AI-generated implementations. Automatically triggers whenever the user asks to review code, inspect a PR or diff, evaluate implementation quality, or ask questions about code with the intent of code review or quality assurance. Identifies requirements, invariants, critical code areas, review depth, and targeted verification scenarios without approving or replacing human code review.
+description: Generates a human-focused QC checklist from an OpenSpec change for diff-based review of AI-generated implementations. Triggered explicitly by the engineer using /qc-checklist or qc:checklist. Identifies requirements, invariants, critical code areas, review depth, and targeted verification scenarios without approving or replacing human code review.
 ---
 
 # `qc-checklist` Skill
@@ -9,20 +9,29 @@ The `qc-checklist` skill translates OpenSpec proposals and spec deltas into a st
 
 ---
 
-## Automatic Invocation Trigger Criteria
+## Engineer QC Workflow
 
-This skill **must be automatically invoked** whenever the engineer expresses an intent to review code or inspect implementation quality.
+This skill is step 1 in the two-stage Human Quality Control review process:
 
-> **Note on Manual Invocation:** Engineers can also manually trigger this skill at any time by calling it explicitly (e.g., `/qc-checklist`, _"Run the qc-checklist skill"_, or _"Generate a human QC checklist for this change"_).
+```text
+1. Generate Checklist          2. Inspect Diff & Ask Questions          3. Verify
+   (/qc-checklist)          →     (Use checklist + /qc-followup)     →  (Run Scenarios)
+```
 
-### Trigger Examples (Intent-Based):
+1. **Generate the Checklist:** Run `/qc-checklist` or `qc:checklist <change-name>` when the AI finishes implementation tasks and the change enters the Human QC phase.
+2. **Review the Diff:** Open your Git diff and work through the generated items. Focus line-by-line inspection on `DEEP` review targets; skim mechanical boilerplate (`SKIM`).
+3. **Ask Follow-Up Questions:** When inspecting critical code lines or complex state transitions, use `/qc-followup` to query the AI about specific logic against OpenSpec invariants.
+4. **Complete Verification:** Execute the targeted test scenarios before approving the change.
 
-- _"Review this code / PR / diff."_
-- _"Help me review the implementation for `<change-name>`."_
-- _"Is this PR ready for human inspection?"_
-- _"What should I pay attention to when reviewing this change?"_
-- _"I need to check the quality of the AI-generated code for this spec."_
-- Any prompt asking questions about changed code where the underlying goal is **verifying correctness, inspecting changes, or preparing for code review**.
+---
+
+## Invocation Commands
+
+This skill is **explicitly invoked by the engineer**:
+
+- `/qc-checklist`
+- `qc:checklist`
+- `qc:checklist <change-name>`
 
 ---
 
