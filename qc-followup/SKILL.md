@@ -1,31 +1,30 @@
 ---
 name: qc-followup
-description: Assists the engineer during code inspection by answering targeted technical questions about specific diff sections against the Human QC Checklist and OpenSpec invariants. Triggers manually via 'qc:follow-up' or when asking specific verification questions during a QC review.
+description: Assists the engineer during line-by-line code inspection by answering targeted technical questions about specific diff sections against the Human QC Checklist and OpenSpec invariants. Triggered explicitly by the engineer using /qc-followup <technical question about the code>.
 ---
 
 # `qc-followup` Skill
 
-The `qc-followup` skill acts as an interactive code-inspection assistant during human QC review. Once a `Human QC Checklist` has been generated, `qc-followup` helps the engineer evaluate specific code snippets, verify complex state transitions, and answer targeted checklist questions **without taking over the human review process or auto-approving code.**
+The `qc-followup` skill acts as an interactive code-inspection assistant during human QC review. Once a `Human QC Checklist` has been generated via `/qc-checklist`, `qc-followup` helps the engineer evaluate specific code snippets, verify complex state transitions, and answer targeted checklist questions **without taking over the human review process or auto-approving code.**
 
 ---
 
-## Trigger Criteria
+## Invocation Commands
 
-### Manual Invocation:
+This skill is **explicitly invoked by the engineer** during code inspection:
 
-- `qc-followup`
-- `qc-followup <question>`
-- `qc-followup --file <path> --item <checklist-item-number>`
+- `/qc-followup <question or code snippet>`
 
-### Automatic Triggers:
+### Example Usage:
 
-- Asking targeted questions while evaluating code against a checklist (e.g., _"Does this SQL query in `repo.ts` satisfy invariant #2 from the QC checklist?"_ or _"Help me answer question 2 under section 2 of the QC checklist for `auth.service.ts`"_).
+- `"/qc-followup Look at lines 40-55 in src/services/month-close.ts. Does this catch block rollback the transaction if account 7110 fails?"`
+- `"/qc-followup Help me answer question 2 under section 2 of the QC checklist for queries/ledger.sql"`
 
 ---
 
 ## Non-Negotiable Guardrails
 
-1. **NEVER say "This code looks good" or "Approved."** Provide technical observations and facts; let the human render the judgment.
+1. **NEVER say "This code looks good" or "Approved."** Provide objective technical facts and execution paths; let the human render the judgment.
 2. **DO NOT edit or modify application files.**
 3. **DO NOT generate generic code quality feedback.** Focus strictly on the requirement, invariant, or risk being evaluated.
 4. **ALWAYS anchor answers back to the OpenSpec specification and QC checklist.**
@@ -34,7 +33,7 @@ The `qc-followup` skill acts as an interactive code-inspection assistant during 
 
 ## Operational Workflow
 
-When `qc-followup` is invoked:
+When `/qc-followup` is invoked:
 
 ```text
 Engineer asks question about specific code snippet or checklist item
@@ -61,7 +60,7 @@ Compare the execution logic in the code against the OpenSpec invariant:
 
 - **Control Flow:** Are edge cases handled (nulls, empty collections, zero values)?
 - **Transaction Bounds:** Are DB mutations atomic where required?
-- **State Integrity:** Does any branch leave the entity in an invalid state?
+- **State Integrity:** Does any execution path leave an entity in an invalid state?
 - **Side Effects:** Are side effects (events, logs, external calls) executed conditionally or unconditionally as intended?
 
 ### Step 3: Objective Technical Feedback
@@ -70,7 +69,7 @@ Present the analysis using clear, non-judgmental findings:
 
 - What the code explicitly does line-by-line.
 - How that behavior aligns or contrasts with the invariant.
-- Any hidden assumptions or potential edge-case gaps for the engineer to test.
+- Any hidden assumptions or potential edge-case gaps for the engineer to test manually.
 
 ---
 
@@ -91,14 +90,14 @@ The skill MUST respond using this template:
 ## Technical Observation
 
 - **Execution Flow:** `<brief description of what the code actually does>`
-- **Invariant Alignment:** `<Matches Needs Potential clarification discrepancy invariant |>`
+- **Invariant Alignment:** `<Matches Discrepancy Potential case edge invariant observed |>`
 
 ## Deep-Dives & Edge Cases
 
-- [ ] **`<Aspect inspect to>`:** `<Detail 'Line 42 Exception at, but catches closely does e.g., look not on rollback the to transaction' what>`
-- [ ] **`<Edge case>`:** `<What X happens if input occurs>`
+- **`<Aspect inspect to>`:** `<Detail 'Line 42 Exception, X but catches does e.g., line not on rollback the transaction' what>`
+- **`<Edge case>`:** `<What X happens if input occurs>`
 
 ## Suggested Human Action
 
-`<Specific before check checking engineer for item manual off or run scenario test the this to>`
+`<Specific before check checking item manual off or run scenario test this to>`
 ```
